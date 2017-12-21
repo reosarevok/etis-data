@@ -29,7 +29,7 @@ site = pywikibot.Site("wikidata", "wikidata")
 repo = site.data_repository()
 
 # We get all items that have an etis.ee ID
-query = "SELECT ?item WHERE { ?item wdt:P2953 [] . MINUS { ?item wdt:P569 [] } } LIMIT 50"
+query = "SELECT ?item WHERE { ?item wdt:P2953 [] }"
 generator = pg.WikidataSPARQLPageGenerator(query, site=site)
 
 for item in generator:
@@ -37,7 +37,6 @@ for item in generator:
     item.get()
     # There should only ever exist one ID per item, so we take the first
     personID = item.claims[u'P2953'][0].target
-    print personID
 
     # We look at the etis.ee page to get the date of birth and the date of death if present
     response = urllib.urlopen(
@@ -45,30 +44,26 @@ for item in generator:
     data = json.loads(response.read())
     person = data[0]
     birthDate = person['DateOfBirth']
-    print birthDate
     deathDate = person['DateOfDeath']
-    print deathDate
 
     # We turn the dates into something Wikidata can recognize
     birthWikiDate = None
     if birthDate != "":
         birthWikiDate = date_to_wikidate(birthDate)
-        print birthWikiDate
 
     deathWikiDate = None
     if deathDate != "":
         deathWikiDate = date_to_wikidate(deathDate)
-        print deathWikiDate
 
     # If there's a date and WD doesn't have a date yet, we send it
     if birthWikiDate is not None and not (u'P569' in item.claims):
         submit_date(birthWikiDate, "P569")
-        print "Birth date!"
+        print "Sending birth date " + birthDate
     else:
-        print "No birth date"
+        print "Not sending birth date"
 
     if deathWikiDate is not None and not (u'P570' in item.claims):
         submit_date(deathWikiDate, "P570")
-        print "Death date!"
+        print "Sending death date " + deathDate
     else:
-        print "No death date"
+        print "Not sending death date"
