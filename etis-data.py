@@ -1,4 +1,4 @@
-import urllib, json
+import requests, json
 import pywikibot
 from pywikibot import pagegenerators as pg
 
@@ -39,9 +39,9 @@ for item in generator:
     personID = item.claims[u'P2953'][0].target
 
     # We look at the etis.ee page to get the date of birth and the date of death if present
-    response = urllib.urlopen(
+    response = requests.get(
         "https://www.etis.ee:7443/api/cvest/getitems?Format=json&SearchType=1&Take=1&Skip=0&PersonId=" + personID)
-    data = json.loads(response.read())
+    data = response.json()
     person = data[0]
     birthDate = person['DateOfBirth']
     deathDate = person['DateOfDeath']
