@@ -1,4 +1,4 @@
-import requests, json
+import requests
 import pywikibot
 from pywikibot import pagegenerators as pg
 
@@ -56,14 +56,54 @@ for item in generator:
         deathWikiDate = date_to_wikidate(deathDate)
 
     # If there's a date and WD doesn't have a date yet, we send it
-    if birthWikiDate is not None and not (u'P569' in item.claims):
+    if birthWikiDate is None:
+        print "No birth date"
+    elif not (u'P569' in item.claims):
         submit_date(birthWikiDate, "P569")
         print "Sending birth date " + birthDate
     else:
-        print "Not sending birth date"
+        statedin = pywikibot.Claim(repo, "P248")
+        erp = pywikibot.ItemPage(repo, "Q11824870")
+        statedin.setTarget(erp)
+        for claim in item.claims[u'P569']:
+            has_etis_source = False
+            for source in claim.sources:
+                if u'P248' in source:
+                    for source_target in source[u'P248']:
+                        if source_target.target == erp:
+                            has_etis_source = True
 
-    if deathWikiDate is not None and not (u'P570' in item.claims):
+            if claim.target == birthWikiDate and has_etis_source == False:
+                claim.addSources([statedin],
+                                 summary=u'Importing dates from the Estonian Research Portal')
+                print "Adding reference to existing date " + birthDate
+            elif has_etis_source == True:
+                print "Date already present with ETIS reference"
+            elif claim.target != birthWikiDate:
+                print "Date clash for " + item.getID()
+
+    if deathWikiDate is None:
+        print "No death date"
+    elif not (u'P570' in item.claims):
         submit_date(deathWikiDate, "P570")
         print "Sending death date " + deathDate
     else:
-        print "Not sending death date"
+        statedin = pywikibot.Claim(repo, "P248")
+        erp = pywikibot.ItemPage(repo, "Q11824870")
+        statedin.setTarget(erp)
+        for claim in item.claims[u'P570']:
+            has_etis_source = False
+            for source in claim.sources:
+                if u'P248' in source:
+                    for source_target in source[u'P248']:
+                        if source_target.target == erp:
+                            has_etis_source = True
+
+            if claim.target == deathWikiDate and has_etis_source == False:
+                claim.addSources([statedin],
+                                 summary=u'Importing dates from the Estonian Research Portal')
+                print "Adding reference to existing date " + deathDate
+            elif has_etis_source == True:
+                print "Date already present with ETIS reference"
+            elif claim.target != deathWikiDate:
+                print "Date clash for " + item.getID()
