@@ -68,7 +68,7 @@ for item in generator:
         if birthWikiDate is None:
             print("No birth date")
         elif not (u'P569' in item.claims):
-            submit_date(birthWikiDate, "P569", [statedin, etisIDRef, refdate])
+            submit_date(birthWikiDate, "P569", [statedin.copy(), etisIDRef.copy(), refdate.copy()])
             print("Sending birth date " + birthDate)
         else:
             statedin = pywikibot.Claim(repo, "P248")
@@ -85,7 +85,7 @@ for item in generator:
                 if claim.target != birthWikiDate:
                     print("Date clash for " + item.getID())
                 elif has_etis_source == False:
-                    claim.addSources([statedin, etisIDRef, refdate],
+                    claim.addSources([statedin.copy(), etisIDRef.copy(), refdate.copy()],
                                      summary=u'Importing dates from the Estonian Research Portal')
                     print("Adding reference to existing date " + deathDate)
                 else:
@@ -95,7 +95,7 @@ for item in generator:
         if deathWikiDate is None:
             print("No death date")
         elif not (u'P570' in item.claims):
-            submit_date(deathWikiDate, "P570", [statedin, etisIDRef, refdate])
+            submit_date(deathWikiDate, "P570", [statedin.copy(), etisIDRef.copy(), refdate.copy()])
             print("Sending death date " + deathDate)
         else:
             for claim in item.claims[u'P570']:
@@ -110,7 +110,7 @@ for item in generator:
                 if claim.target != deathWikiDate:
                     print("Date clash for " + item.getID())
                 elif has_etis_source == False:
-                    claim.addSources([statedin, etisIDRef, refdate],
+                    claim.addSources([statedin.copy(), etisIDRef.copy(), refdate.copy()],
                                      summary=u'Importing dates from the Estonian Research Portal')
                     print("Adding reference to existing date " + deathDate)
                 else:
